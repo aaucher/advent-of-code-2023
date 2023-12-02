@@ -3,6 +3,7 @@
   :description "Advent of code 2023"
   :author "Adrien Aucher"
   :license "MIT"
-  :depends-on (:str)
+  :depends-on (:alexandria :str)
   :serial t
-  :components ((:file "day01")))
+  :components ((:file "day01")
+	       (:file "day02")))
