@@ -1,12 +1,6 @@
 (defpackage #:advent2023.day04
-  (:use :cl))
+  (:use :cl :day00))
 (in-package #:advent2023.day04)
-
-(defun get-file (filename)
-  (with-open-file (stream filename)
-    (loop for line = (read-line stream nil)
-          while (not (str:emptyp line))
-          collect line)))
 
 (defstruct card number winning-numbers numbers)
 
@@ -37,8 +31,8 @@
 			(card-value (parse-card line)))
 		      (get-file filepath))))
 
-(solve-problem-1 #P"inputs/example04.txt")
-(solve-problem-1 #P"inputs/day04.txt")
+(solve-problem-1 #P"inputs/example04.txt") ;; 13
+(solve-problem-1 #P"inputs/day04.txt") ;; 23941
 
 (defun copies (cards)
   (let ((copies (make-array (length cards) :initial-element 1)))
@@ -52,5 +46,5 @@
 (defun solve-problem-2 (filepath)
   (reduce #'+ (copies (mapcar #'parse-card (get-file filepath)))))
 
-(solve-problem-2 #P"inputs/example04.txt")
-(solve-problem-2 #P"inputs/day04.txt")
+(solve-problem-2 #P"inputs/example04.txt") ;; 30
+(solve-problem-2 #P"inputs/day04.txt") ;; 5571760

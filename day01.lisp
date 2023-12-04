@@ -1,12 +1,6 @@
 (defpackage #:advent2023.day01
-  (:use :cl))
+  (:use :cl :day00))
 (in-package #:advent2023.day01)
-
-(defun get-file (filename)
-  (with-open-file (stream filename)
-    (loop for line = (read-line stream nil)
-          while (not (str:emptyp line))
-          collect line)))
 
 (defun first-digit (str)
   (loop for c across str do
@@ -24,7 +18,7 @@
 (defun solve-problem1 (filepath)
   (reduce #'+ (mapcar #'extract-2-digits-number (get-file filepath))))
 
-(solve-problem1 #P"inputs/day01.txt")
+(solve-problem1 #P"inputs/day01.txt") ;; 53194
 
 (defparameter *spelled-out-digits*
   '("one" "two" "three" "four" "five" "six" "seven" "eight" "nine"))
@@ -54,4 +48,4 @@
 (defun solve-problem2 (filepath)
   (reduce #'+ (mapcar #'extract-2-digits-or-spelled-out-digit-number (get-file filepath))))
 
-(solve-problem2 #P"inputs/example01-2.txt")
+(solve-problem2 #P"inputs/day01.txt") ;; 54249

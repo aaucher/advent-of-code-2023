@@ -1,12 +1,6 @@
 (defpackage #:advent2023.day03
-  (:use :cl))
+  (:use :cl :day00))
 (in-package #:advent2023.day03)
-
-(defun get-file (filename)
-  (with-open-file (stream filename)
-    (loop for line = (read-line stream nil)
-          while (not (str:emptyp line))
-          collect line)))
 
 (defstruct schematic types numbers)
 
@@ -78,8 +72,8 @@
 (defun solve-problem-1 (filepath)
   (reduce #'+ (get-part-numbers (parse-schematic (get-file filepath)))))
 
-(solve-problem-1 #P"inputs/example03.txt")
-(solve-problem-1 #P"inputs/day03.txt")
+(solve-problem-1 #P"inputs/example03.txt") ;; 4361
+(solve-problem-1 #P"inputs/day03.txt") ;; 536576
 
 (defun gear-ratio (schematic x y)
   (let ((part-numbers-around (part-numbers-around schematic x y)))
@@ -96,3 +90,6 @@
 
 (defun solve-problem-2 (filepath)
   (reduce #'+ (get-gear-ratios (parse-schematic (get-file filepath)))))
+
+(solve-problem-2 #P"inputs/example03.txt") ;; 467835
+(solve-problem-2 #P"inputs/day03.txt") ;; 75741499

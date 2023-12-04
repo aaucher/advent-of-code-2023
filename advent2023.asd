@@ -5,7 +5,8 @@
   :license "MIT"
   :depends-on (:alexandria :str)
   :serial t
-  :components ((:file "day01")
+  :components ((:file "day00")
+	       (:file "day01")
 	       (:file "day02")
 	       (:file "day03")
 	       (:file "day04")))

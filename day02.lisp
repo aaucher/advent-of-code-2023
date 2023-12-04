@@ -1,12 +1,6 @@
 (defpackage #:advent2023.day02
-  (:use :cl))
+  (:use :cl :day00))
 (in-package #:advent2023.day02)
-
-(defun get-file (filename)
-  (with-open-file (stream filename)
-    (loop for line = (read-line stream nil)
-          while (not (str:emptyp line))
-          collect line)))
 
 (defstruct game number sets)
 
@@ -49,8 +43,8 @@
 				0)))
 		      (get-file filepath))))
 
-(solve-problem-1 #P"inputs/example02.txt")
-(solve-problem-1 #P"inputs/day02.txt")
+(solve-problem-1 #P"inputs/example02.txt") ;; 8
+(solve-problem-1 #P"inputs/day02.txt") ;; 2176
 
 (defun get-cube (set color)
   (find-if #'(lambda (cube) (eq color (cdr cube))) set))
@@ -72,5 +66,5 @@
 			  (cube-power (game-sets (parse-game line))))
 		      (get-file filepath))))
 
-(solve-problem-2 #P"inputs/example02.txt")
-(solve-problem-2 #P"inputs/day02.txt")
+(solve-problem-2 #P"inputs/example02.txt") ;; 2286
+(solve-problem-2 #P"inputs/day02.txt") ;; 63700
