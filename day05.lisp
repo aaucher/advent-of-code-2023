@@ -57,14 +57,45 @@
 (solve-problem-1 #p"inputs/example05.txt") ;; 35
 (solve-problem-1 #p"inputs/day05.txt") ;; 424490994
 
+(defun map-seed (seed map-range)
+  (let* ((range (map-range-source-range map-range))
+	 (transformation (map-range-transformation map-range))
+	 (intersection (range-intersection seed range)))
+    (if intersection
+	(values (range-+ intersection transformation)
+		(car (remove-if #'(lambda (r)
+			       (or (null r) (range-disjoint-p r seed)))
+			   (range-difference seed range))))
+	(values nil seed))))
+
+(defun list-or-nil (e) (when e (list e)))
+
+(defun convert-seed-range (seed conversion-map)
+  (nreverse (reduce #'(lambda (seeds range)
+			(multiple-value-bind (converted not-converted)
+			    (map-seed (car seeds) range)
+			  (append (list-or-nil not-converted)
+				  (list-or-nil converted)
+				  (cdr seeds))))
+		    (conversion-map-ranges conversion-map)
+		    :initial-value (list seed))))
+
+(defun convert-seed-ranges (seeds conversion-map)
+  (mapcan #'(lambda (seed) (convert-seed-range seed conversion-map)) seeds))
+
 (defun seeds-as-range (seeds)
   (sort (mapcar #'(lambda (chunk)
 		    (apply #'make-range-from-width chunk))
 		(chunk seeds 2))
 	#'range-from-<))
 
+(defun seeds-to-location (almanach)
+  (reduce #'convert-seed-ranges
+	  (almanach-conversion-maps almanach)
+	  :initial-value (seeds-as-range (almanach-seeds almanach))))
+
 (defun solve-problem-2 (filepath)
-  (parse-almanach (get-file filepath)))
+  (reduce #'range-min (seeds-to-location (parse-almanach (get-file filepath)))))
 
 (solve-problem-2 #p"inputs/example05.txt") ;; 46
-(solve-problem-2 #p"inputs/day05.txt") ;;
+(solve-problem-2 #p"inputs/day05.txt") ;; 0 wrong answer
