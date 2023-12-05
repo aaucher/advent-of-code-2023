@@ -52,13 +52,10 @@
 (defun get-cubes (sets color)
   (remove-if #'null (mapcar #'(lambda (set) (get-cube set color)) sets)))
 
-(defun max-list (list)
-  (apply #'max list))
-
 (defun cube-power (sets)
-  (let ((b (or (max-list (mapcar #'car (get-cubes sets :blue))) 1))
-	(g (or (max-list (mapcar #'car (get-cubes sets :green))) 1))
-	(r (or (max-list (mapcar #'car (get-cubes sets :red))) 1)))
+  (let ((b (or (list-max (mapcar #'car (get-cubes sets :blue))) 1))
+	(g (or (list-max (mapcar #'car (get-cubes sets :green))) 1))
+	(r (or (list-max (mapcar #'car (get-cubes sets :red))) 1)))
     (* r g b)))
 
 (defun solve-problem-2 (filepath)
