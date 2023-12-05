@@ -79,8 +79,10 @@
 		:to (min (range-to a) (range-to b)))))
 
 (defun range-union (a b)
-  (make-range :from (min (range-from a) (range-from b))
-	      :to (max (range-to a) (range-to b))))
+  (if (range-disjoint-p a b)
+      (list a b)
+      (make-range :from (min (range-from a) (range-from b))
+		  :to (max (range-to a) (range-to b)))))
 
 (defun range-difference (a b)
   (cond ((range-disjoint-p a b) (list a b))
@@ -96,10 +98,14 @@
 	     (push (make-range :from (1+ (range-to intersection))
 			       :to (range-to union))
 		   ranges))
-	   ranges))))
+	   (nreverse ranges)))))
 
 (defun range-min (a b)
-  (if (< (range-from a) (range-from b)) a b))
+  (cond ((< (range-from a) (range-from b)) a)
+	((< (range-from b) (range-from a)) b)
+	((= (range-from a) (range-from b)) (if (<= (range-to a) (range-to b)) a b))))
 
 (defun range-max (a b)
-  (if (> (range-to a) (range-to b)) a b))
+  (cond ((> (range-from a) (range-from b)) a)
+	((> (range-from b) (range-from a)) b)
+	((= (range-from a) (range-from b)) (if (>= (range-to a) (range-to b)) a b))))

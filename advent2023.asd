@@ -6,6 +6,7 @@
   :depends-on (:alexandria :str)
   :serial t
   :components ((:file "day00")
+	       (:file "day00-test")
 	       (:file "day01")
 	       (:file "day02")
 	       (:file "day03")
