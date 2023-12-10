@@ -105,22 +105,64 @@
 		      'vector)))
      (remove-not-connected (make-grid :rows rows :start (find-start rows)))))
 
-(defun follow-loop (grid)
+(defun loop-path (grid)
   (let* ((start-coord (grid-start grid))
 	 (rows (grid-rows grid))
 	 (start (tile-at-coord rows start-coord))
 	 (next-connection (first (tile-connect-to start)))
 	 (current (tile-at-coord rows (cdr next-connection))))
-    (loop while (not (starting-pipe-p current))
-	  collect current
-	  do (setf next-connection (first (remove-if #'(lambda (connection)
-							 (eq (opposite-direction (car next-connection))
-							     (car connection)))
-						     (tile-connect-to current))))
-	     (setf current (tile-at-coord rows (cdr next-connection))))))
+    (cons start
+      (loop while (not (starting-pipe-p current))
+	    collect current
+	    do (setf next-connection (first (remove-if #'(lambda (connection)
+							   (eq (opposite-direction (car next-connection))
+							       (car connection)))
+						       (tile-connect-to current))))
+	       (setf current (tile-at-coord rows (cdr next-connection)))))))
 
 (defun solve-problem-1 (filepath)
-  (/ (1+ (length (follow-loop (parse-grid (get-file filepath))))) 2))
+  (/ (length (loop-path (parse-grid (get-file filepath)))) 2))
 
-(solve-problem-1 #p"inputs/example10.txt") ;; 8
+(solve-problem-1 #p"inputs/example10-1.txt") ;; 8
 (solve-problem-1 #p"inputs/day10.txt") ;; 6903
+
+(defun set= (set-a set-b)
+  (null (set-exclusive-or set-a set-b)))
+
+(defun enclosed (grid)
+  (let* ((loop-path (follow-loop grid))
+	 (on-loop-path (let ((ht (make-hash-table :size (length loop-path))))
+			 (loop for tile in loop-path do
+			   (setf (gethash (tile-coord tile) ht) t))
+			 ht))
+	 enclosed)
+    (loop for row across (grid-rows grid) do
+      (let ((loop-boundary-crossed 0)
+	    last-westbound-crossing)
+	(loop for tile across row do
+	  (if (not (gethash (tile-coord tile) on-loop-path))
+	      (when (oddp loop-boundary-crossed)
+		(push tile enclosed))
+	      (let ((connections (mapcar #'car (tile-connect-to tile))))
+		(cond ((set= connections '(:north :south))
+		       (incf loop-boundary-crossed))
+		      ((set= connections '(:west :north))
+		       (if (set= last-westbound-crossing '(:east :north))
+			   (setf loop-boundary-crossed (+ 2 loop-boundary-crossed)
+				 last-westbound-crossing nil)
+			   (incf loop-boundary-crossed)))
+		      ((set= connections '(:west :south))
+		       (if (set= last-westbound-crossing '(:east :south))
+			   (setf loop-boundary-crossed (+ 2 loop-boundary-crossed)
+				 last-westbound-crossing nil)
+			   (incf loop-boundary-crossed)))
+		      ((or (set= connections '(:east :north))
+			   (set= connections '(:east :south)))
+		       (setf last-westbound-crossing connections))))))))
+    enclosed))
+
+(defun solve-problem-2 (filepath)
+  (length (enclosed (parse-grid (get-file filepath)))))
+
+(solve-problem-2 #p"inputs/example10-2.txt") ;; 10
+(solve-problem-2 #p"inputs/day10.txt") ;; 274 wrong answer
