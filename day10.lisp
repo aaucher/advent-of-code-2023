@@ -130,7 +130,7 @@
   (null (set-exclusive-or set-a set-b)))
 
 (defun enclosed (grid)
-  (let* ((loop-path (follow-loop grid))
+  (let* ((loop-path (loop-path grid))
 	 (on-loop-path (let ((ht (make-hash-table :size (length loop-path))))
 			 (loop for tile in loop-path do
 			   (setf (gethash (tile-coord tile) ht) t))
@@ -165,4 +165,4 @@
   (length (enclosed (parse-grid (get-file filepath)))))
 
 (solve-problem-2 #p"inputs/example10-2.txt") ;; 10
-(solve-problem-2 #p"inputs/day10.txt") ;; 274 wrong answer
+(solve-problem-2 #p"inputs/day10.txt") ;; 265
