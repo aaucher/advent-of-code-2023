@@ -6,6 +6,7 @@
 	   #:list-max
 	   #:split-when
 	   #:chunk
+	   #:rotate
 	   #:range
 	   #:make-range
 	   #:range-from
@@ -52,6 +53,9 @@
 		 (nreverse acc)
 		 (cut (subseq l size) (cons (subseq l 0 size) acc)))))
     (cut list '())))
+
+(defun rotate (list-of-lists)
+  (apply #'mapcar #'list list-of-lists))
 
 (defstruct range from to) ;; inclusive of bounds
 
