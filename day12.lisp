@@ -34,34 +34,49 @@
   (every #'(lambda (s) (or (operationalp s) (unknownp s))) springs))
 
 (defun possible-arrangements (row)
-  (labels ((rec (to-match available damaged)
-	     (cond
-	       ;; successful search
-	       ((and (null damaged) (all-operational available)) 1)
-	       ;; unsuccessful seatch
-	       ((null damaged) 0)
-	       ;; skip operational
-	       ((and (null to-match) (not (null available)) (operationalp (first available)))
-		(rec '() (rest available) damaged))
-	       ;; unknown is either operational or a damaged spring
-	       ((and (null to-match) (not (null available)) (unknownp (first available)))
-		(+ (rec '() (rest available) damaged)
-		   (rec (list (first available)) (rest available) damaged)))
-	       ;; first damaged count matches to-match
-	       ((and (= (length to-match) (first damaged))
-		     (breakp (first available)))
-		(rec '() (rest available) (rest damaged)))
-	       ;; no match, keep accumulating
-	       ((and (not (null available))
-		     (not (operationalp (first available)))
-		     (< (length to-match) (first damaged)))
-		(rec (cons (first available) to-match) (rest available) damaged))
-	       ;; unsuccessful search
-	       (t 0))))
-    (rec '() (row-springs row) (row-damaged row))))
+  (let ((memo (make-hash-table :test #'equal)))
+    (labels ((rec (to-match available damaged)
+	       (when (gethash (list to-match available damaged) memo)
+		 (return-from rec (gethash (list to-match available damaged) memo)))
+	       (setf (gethash (list to-match available damaged) memo)
+		     (cond
+		       ;; successful search
+		       ((and (null damaged) (all-operational available)) 1)
+		       ;; unsuccessful seatch
+		       ((null damaged) 0)
+		       ;; skip operational
+		       ((and (null to-match) (not (null available)) (operationalp (first available)))
+			(rec '() (rest available) damaged))
+		       ;; unknown is either operational or a damaged spring
+		       ((and (null to-match) (not (null available)) (unknownp (first available)))
+			(+ (rec '() (rest available) damaged)
+			   (rec (list (first available)) (rest available) damaged)))
+		       ;; first damaged count matches to-match
+		       ((and (= (length to-match) (first damaged))
+			     (breakp (first available)))
+			(rec '() (rest available) (rest damaged)))
+		       ;; no match, keep accumulating
+		       ((and (not (null available))
+			     (not (operationalp (first available)))
+			     (< (length to-match) (first damaged)))
+			(rec (cons (first available) to-match) (rest available) damaged))
+		       ;; unsuccessful search
+		       (t 0)))))
+      (rec '() (row-springs row) (row-damaged row)))))
 
 (defun solve-problem-1 (filepath)
   (reduce #'+ (mapcar #'possible-arrangements (parse-field (get-file filepath)))))
 
 (solve-problem-1 #p"inputs/example12.txt") ;; 21
 (solve-problem-1 #p"inputs/day12.txt") ;; 6871
+
+(defun unfold (row)
+  (make-row :springs (cdr (loop for n from 0 below 5 append (cons #\? (row-springs row))))
+	    :damaged (loop for n from 0 below 5 append (row-damaged row))))
+
+(defun solve-problem-2 (filepath)
+  (reduce #'+ (mapcar #'possible-arrangements
+		      (mapcar #'unfold (parse-field (get-file filepath))))))
+
+(solve-problem-2 #p"inputs/example12.txt") ;; 525152
+;(solve-problem-2 #p"inputs/day12.txt") ;; 2043098029844
